@@ -1,19 +1,19 @@
-using ToDoApp.Api.Services;
+using System.Data;
+using Microsoft.Data.SqlClient;
+using ToDoApp.Api.Features.ToDos;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddToDos();
+builder.Services.AddCors();
 
-builder.Services.AddSingleton<ToDoService>();
+builder.Services.AddScoped<IDbConnection>(sp =>
+    new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -27,8 +27,6 @@ app.UseCors(builder => builder
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
-app.MapControllers();
+app.MapToDoEndpoints();
 
 app.Run();
